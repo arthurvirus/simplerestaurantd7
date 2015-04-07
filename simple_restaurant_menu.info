@@ -1,0 +1,20 @@
+name = Simple Restaurant Menu
+description = Manage a restaurant Menu
+package = Simple Restaurant
+core = 7.x
+dependencies[] = views
+dependencies[] = weight
+dependencies[] = taxonomy
+dependencies[] = computed_field
+dependencies[] = entityreference
+dependencies[] = multiple_selects
+
+files[] = simple_restaurant_menu.module
+files[] = simple_restaurant_menu.install
+files[] = simple_restaurant_menu.views_default.inc
+
+version = "7.x-1.1"
+core = "7.x"
+
+
+

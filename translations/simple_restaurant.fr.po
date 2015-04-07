@@ -1,0 +1,277 @@
+# $Id$
+#
+# French translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  restaurant.views_default.inc: n/a
+#  restaurant.module: n/a
+#  restaurant.install: n/a
+#  restaurant.info: n/a
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2013-06-18 18:56+0200\n"
+"PO-Revision-Date: 2013-06-18 18:59+0100\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: French <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n>1);\n"
+"X-Generator: Poedit 1.5.5\n"
+
+#: restaurant.views_default.inc:190;323
+msgid "Master"
+msgstr "Maitre"
+
+#: restaurant.views_default.inc:191 restaurant.module:142
+msgid "Food Admin"
+msgstr "Administration nourriture"
+
+#: restaurant.views_default.inc:192;324
+msgid "more"
+msgstr "plus"
+
+#: restaurant.views_default.inc:193;325
+msgid "Apply"
+msgstr "Confirmer"
+
+#: restaurant.views_default.inc:194;326
+msgid "Reset"
+msgstr "Annuler"
+
+#: restaurant.views_default.inc:195;327
+msgid "Sort by"
+msgstr "Trier par"
+
+#: restaurant.views_default.inc:196;328
+msgid "Asc"
+msgstr ""
+
+#: restaurant.views_default.inc:197;329
+msgid "Desc"
+msgstr ""
+
+#: restaurant.views_default.inc:198 restaurant.install:17
+msgid "Food Category"
+msgstr "Catégorie de nourriture"
+
+#: restaurant.views_default.inc:199
+msgid "Title"
+msgstr "Titre"
+
+#: restaurant.views_default.inc:200
+msgid "Weight"
+msgstr "Poids"
+
+#: restaurant.views_default.inc:201 restaurant.install:217
+msgid "Description"
+msgstr "Description"
+
+#: restaurant.views_default.inc:202 restaurant.install:233
+msgid "Image"
+msgstr "Image"
+
+#: restaurant.views_default.inc:203 restaurant.install:225
+msgid "Price"
+msgstr "Prix"
+
+#: restaurant.views_default.inc:204
+msgid "Delete link"
+msgstr "Supprimer"
+
+#: restaurant.views_default.inc:205
+msgid "Edit link"
+msgstr "Editer"
+
+#: restaurant.views_default.inc:206;331
+msgid "Block"
+msgstr ""
+
+#: restaurant.views_default.inc:330
+msgid "food item category"
+msgstr ""
+
+#: restaurant.module:20
+msgid "Food Item"
+msgstr "Objet nourriture"
+
+#: restaurant.module:22
+msgid "Item to be used in menu"
+msgstr "Objet utilisé dans le menu"
+
+#: restaurant.module:53
+msgid "Restaurant Contact"
+msgstr "Contact du restaurant"
+
+#: restaurant.module:64
+msgid "Restaurant Opening Hours"
+msgstr "Heures d'ouverture du restaurant"
+
+#: restaurant.module:85;275;424
+msgid "Contact"
+msgstr "Contact"
+
+#: restaurant.module:91;278;480
+msgid "Opening Hours"
+msgstr "Heures d'ouvertures"
+
+#: restaurant.module:113
+msgid "Administer Module Restaurant"
+msgstr "Module d'administration du restaurant"
+
+#: restaurant.module:114
+msgid "Perform administration tasks for module restaurant"
+msgstr "Exécute des tâches d'administration pour le module restaurant"
+
+#: restaurant.module:134 restaurant.info:0;0
+msgid "Restaurant"
+msgstr "Restaurant"
+
+#: restaurant.module:136
+msgid "Admin pages for Restaurant Module"
+msgstr "Adminsitre les pages pour le module Restaurant"
+
+#: restaurant.module:145
+msgid "Add or modify Food Items"
+msgstr "Ajoute ou modifie les objets nourriture"
+
+#: restaurant.module:151
+msgid "Category Admin"
+msgstr "Administration des catégories"
+
+#: restaurant.module:154
+msgid "Add or modify Food Categories"
+msgstr "Ajouter ou modifier les catégories de nourriture"
+
+#: restaurant.module:160
+msgid "Restaurant Information Admin"
+msgstr "Administration des informations sur le restaurant"
+
+#: restaurant.module:164
+msgid ""
+"Edit informations about the restaurant (Opening hours, Telephone number,..)"
+msgstr ""
+"Modifier des informations sur le restaurant (Heures d'ouverture, Numéro de "
+"téléphone,...)"
+
+#: restaurant.module:170
+msgid "Menu"
+msgstr "Carte"
+
+#: restaurant.module:178
+msgid "General information"
+msgstr "Informations générales"
+
+#: restaurant.module:211
+msgid "Add food category"
+msgstr "Ajouter catégorie de nourriture"
+
+#: restaurant.module:217
+msgid "Enter new category"
+msgstr "Entrez nouvelle catégorie"
+
+#: restaurant.module:242
+msgid "<a href=\"../../node/add/food-item\">Add Food Item</a>"
+msgstr ""
+
+#: restaurant.module:348
+msgid "Day"
+msgstr "Jour"
+
+#: restaurant.module:348;648
+msgid "Morning"
+msgstr "Matin"
+
+#: restaurant.module:348;653
+msgid "Evening"
+msgstr "Soirée"
+
+#: restaurant.module:431
+msgid "Telephone Number"
+msgstr "Numéro de téléphone"
+
+#: restaurant.module:437
+msgid "Mobile phone Number"
+msgstr "Numéro de GSM"
+
+#: restaurant.module:443
+msgid "Email"
+msgstr "Email"
+
+#: restaurant.module:449
+msgid "Address"
+msgstr "Adresse"
+
+#: restaurant.module:455
+msgid "Google Map"
+msgstr ""
+
+#: restaurant.module:456
+msgid "Insert link from Google Map"
+msgstr "Insérer lien depuis google map"
+
+#: restaurant.module:463
+msgid "Opening hours"
+msgstr "Heures d'ouvertures"
+
+#: restaurant.module:472
+msgid "Free text"
+msgstr "Texte libre"
+
+#: restaurant.module:473
+msgid "Full table with days"
+msgstr "Table complète par jour"
+
+#: restaurant.module:475
+msgid "What type of display do you want ?"
+msgstr "Quel type d'affichage voulez-vous ?"
+
+#: restaurant.module:493;522;605
+msgid "Sunday"
+msgstr "Dimanche"
+
+#: restaurant.module:494;530;606
+msgid "Monday"
+msgstr "Lundi"
+
+#: restaurant.module:495;536;607
+msgid "Tuesday"
+msgstr "Mardi"
+
+#: restaurant.module:496;542;608
+msgid "Wednesday"
+msgstr "Mercredi"
+
+#: restaurant.module:497;548;609
+msgid "Thursday"
+msgstr "Jeudi"
+
+#: restaurant.module:498;554;610
+msgid "Friday"
+msgstr "Vendredi"
+
+#: restaurant.module:499;560;611
+msgid "Saturday"
+msgstr "Samedi"
+
+#: restaurant.module:506
+msgid "Week"
+msgstr "Semaine"
+
+#: restaurant.module:567
+msgid "Save Informations"
+msgstr "Enregistrer les informations"
+
+#: restaurant.module:616
+msgid "Informations saved"
+msgstr "Informations enregistrées"
+
+#: restaurant.module:187
+msgid "Test"
+msgstr "Test"
+
+#: restaurant.info:0
+msgid "Restaurant and menu"
+msgstr "Restaurant et menu"

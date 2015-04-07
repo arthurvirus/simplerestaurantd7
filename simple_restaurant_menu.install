@@ -1,0 +1,557 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the simple_restaurant_menu module.
+ */
+ // --------------------------------------------
+ // ----------------- NODE -------------------
+ // --------------------------------------------
+ 
+/**
+ * Implements hook_node_info().
+ *
+ * Add a simple node named food_item
+ */
+function simple_restaurant_menu_node_info() {
+  return array(
+    'food_item' => array(
+      'name' => t('Food Item'),
+      'base' => 'simple_restaurant_menu',
+      'description' => t('Item to be used in menu'),
+	  //'has_title' => TRUE,
+    ),
+	'combination_sub' => array(
+      'name' => t('Sub combination'),
+      'base' => 'simple_restaurant_menu',
+      'description' => t('Sub combination'),
+	  //'has_title' => TRUE,
+    ),
+	'combination' => array(
+      'name' => t('Combination'),
+      'base' => 'simple_restaurant_menu',
+      'description' => t('Combination'),
+	  //'has_title' => TRUE,
+    ),
+  );
+ 
+}
+
+/**
+ * Implements hook_install().
+ */
+function simple_restaurant_menu_install() {
+  // Insert vocabulary and Test terms
+  $vid = db_query("SELECT vid FROM {taxonomy_vocabulary} WHERE machine_name = 'food_category'")->fetchField();
+  if( $vid == ''){
+	
+    taxonomy_vocabulary_save((object) array (
+	  'name' => t('Food Category'),
+	  'machine_name' => 'food_category',
+    ));  
+
+    // Get the vocabulary ID.
+    $vid = db_query("SELECT vid FROM {taxonomy_vocabulary} WHERE machine_name = 'food_category'")->fetchField();
+
+    // Define the terms.
+    $terms[] = 'Appetizer';
+    $terms[] = 'Main Dish';
+    $terms[] = 'Dessert';
+
+    foreach ($terms as $term) {
+
+	  // Create the term.
+	  taxonomy_term_save((object) array (
+	  'name' => $term,
+	  'vid' => $vid,
+	  ));
+    }	
+  }
+  //---------------------------------------------
+  // Insert combination_sub content type and its fields
+  //---------------------------------------------
+  node_types_rebuild();
+  $types = node_type_get_types();
+  $fooditem = $types['food_item']; //??
+  $combination_sub = $types['combination_sub']; //??
+  $combination = $types['combination']; //??
+  
+  // Combination
+    variable_set('comment_combination', '1'); //Commentaires deactivated
+
+   //Promote to front page = false
+  variable_set('node_options_combination', array (0 => 'status',) );
+  variable_set('menu_options_combination', array (    ) );//menu empty
+  variable_set('node_submitted_combination', '0');//display author = false 
+
+  
+    // Create all the fields we are adding to our content type.
+  foreach (_combination_installed_fields() as $field) {
+    field_create_field($field);
+  }
+
+    // Create all the instances for our fields.
+  foreach (_combination_installed_instances() as $instance) {
+    $instance['entity_type'] = 'node';
+    $instance['bundle'] = 'combination';
+    field_create_instance($instance);
+  }
+  
+  // SUB
+  //OPTIONS
+  variable_set('comment_combination_sub', '1'); //Commentaires deactivated
+
+   //Promote to front page = false
+  variable_set('node_options_combination_sub', array (0 => 'status',) );
+  variable_set('menu_options_combination_sub', array (    ) );//menu empty
+  variable_set('node_submitted_combination_sub', '0');//display author = false 
+
+  
+    // Create all the fields we are adding to our content type.
+  foreach (_combination_sub_installed_fields() as $field) {
+    field_create_field($field);
+  }
+
+    // Create all the instances for our fields.
+  foreach (_combination_sub_installed_instances() as $instance) {
+    $instance['entity_type'] = 'node';
+    $instance['bundle'] = 'combination_sub';
+    field_create_instance($instance);
+  }
+  
+  //---------------------------------------------
+  // Insert Food item content type and its fields
+  //---------------------------------------------
+  //node_types_rebuild();
+  //$types = node_type_get_types();
+  //$fooditem = $types['food_item']; 
+  //$combination_sub = $types['combination_sub']; 
+  
+  //OPTIONS
+  variable_set('comment_food_item', '1'); //Commentaires deactivated 
+
+   //Promote to front page = false
+  variable_set('node_options_food_item', array (0 => 'status',) );
+  variable_set('menu_options_food_item', array (    ) );//menu empty
+  variable_set('node_submitted_food_item', '0');//display author = false 
+
+  
+    // Create all the fields we are adding to our content type.
+  foreach (_food_item_installed_fields() as $field) {
+    field_create_field($field);
+  }
+
+    // Create all the instances for our fields.
+  foreach (_food_item_installed_instances() as $instance) {
+    $instance['entity_type'] = 'node';
+    $instance['bundle'] = 'food_item';
+    field_create_instance($instance);
+  }
+
+  // Create specific roles
+  
+  // Call the array with your default roles.
+  $roles = simple_restaurant_menu_default_roles();
+  // Loop through the array.
+  foreach ($roles as $value) {
+    // Check that a role is not already returned.
+    if (!user_role_load_by_name($value)) {
+      $role = new stdClass(); // create your Class
+    
+      // Match values to the role Class.
+      $role->name = $value['name'];
+      $role->weight = $value['weight'];
+
+      // Save the Role using Drupal's API.
+      user_role_save($role);
+    }
+  }
+
+  // Assign new permissions
+  
+  // To owner
+  $owner_role = user_role_load_by_name('owner'); 
+  $owner_rid = $owner_role->rid;
+  // Define our 'owner' role permissions
+   $owner_permissions = _simple_restaurant_menu_new_permissions();
+  // Grant permissions to our 'owner' role
+  user_role_change_permissions($owner_rid, $owner_permissions);
+  
+  
+  //To Admin
+  $admin_role = user_role_load_by_name('administrator'); 
+  $admin_rid = $admin_role->rid;
+  // Define our 'admin' role permissions
+  $admin_permissions = _simple_restaurant_menu_new_permissions();
+  // Grant permissions to our 'admin' role
+  user_role_change_permissions($admin_rid, $admin_permissions);
+
+}
+
+/**
+ * Adds a body field to the simple_restaurant_menu node type.
+ */
+function simple_restaurant_menu_update_7001() {
+  node_types_rebuild();
+  $types = node_type_get_types();
+  node_add_body_field($types['food_item']);
+}
+
+
+
+
+// --------------------------------------------
+// ----------------- NODES --------------------
+// --------------------------------------------
+
+
+
+/**
+ * Define the fields for our content type.
+ *
+ * This big array is factored into this function for readability.
+ *
+ * @return
+ *  An associative array specifying the fields we wish to add to our
+ *  new node type.
+ */
+ function _combination_installed_fields() {
+	return array(
+    'combination_sub_ref' => array(
+      'field_name' => 'combination_sub_ref',
+      'label' => 'combination_sub_ref',
+      'type' => 'entityreference',
+      'settings' => array(
+        'target_type' => 'node',
+        'handler_settings' => array('target_bundles' => array('combination_sub')), 
+        ),
+      'cardinality' =>'-1',
+     ), 
+	);
+ 
+ }
+ function _combination_sub_installed_fields() {
+	return array(
+    'sub_food_ref' => array(
+      'field_name' => 'sub_food_ref',
+      'label' => 'Sub combination',
+      'type' => 'entityreference',
+      'settings' => array(
+        'target_type' => 'node',
+        'handler_settings' => array('target_bundles' => array('food_item')), 
+        ),
+      'cardinality' =>'-1',
+     ), 
+	);
+ 
+ }
+function _food_item_installed_fields() {
+  return array(
+    'desc' => array(
+      'field_name'  => 'desc',
+      'cardinality' => 1,
+      'type'        => 'text',
+    ),
+    'price' => array(
+      'field_name'  => 'price',
+      'cardinality' => 1,
+      'type'        => 'number_decimal',
+	  'settings' => array(
+        'precision' => '10',
+		'scale' => '2',
+		'decimal_separator' => ',', // Comment to leave . as separator
+       ),
+    ),
+    'image' => array(
+      'field_name' => 'image',
+      'type'       => 'image',
+      'cardinality' => 1,
+    ),
+    'category' => array(
+      'field_name' => 'category',
+      'label' => 'Category',
+      'type' => 'taxonomy_term_reference',
+      'settings' => array(
+		'required' => true,
+        'allowed_values' => array(
+         array(
+           'vocabulary' => 'food_category', 
+           'parent' => 0,
+           ),
+         ),
+       ),
+     ), 
+	 //TODO add two computed field to be used in views.
+	 'parent_category' => array(
+      'field_name' => 'parent_category',
+      'label' => 'Parent Category',
+      'type' => 'computed',
+      'settings' => array(
+        'code' => '$p = taxonomy_get_parents($entity->category[\'und\'][0][\'tid\']); if($p != null){ foreach($p AS $parent) {  $entity_field[0][\'value\'] = $parent->name; } }else{ $entity_field[0][\'value\'] =taxonomy_term_load($entity->category[\'und\'][0][\'tid\'])->name;}   ',
+        'display_format' => '$display_output = $entity_field_item[\'value\'];',
+        'store' => 1,
+        'database' => array(
+          'data_type' => 'varchar',
+          'data_length' => 32,
+          'data_size' => 'normal',
+          'data_precision' => 10,
+          'data_scale' => 2,
+          'data_not_NULL' => FALSE,
+          'data_default' => NULL,
+          'data_index' => FALSE,
+        ),
+      ),
+     ), 
+	 //child
+	  'child_category' => array(
+      'field_name' => 'child_category',
+      'label' => 'Child Category',
+      'type' => 'computed',
+      'settings' => array(
+        'code' => '$p = taxonomy_get_parents($entity->category[\'und\'][0][\'tid\']); if($p != null){ $entity_field[0][\'value\'] =taxonomy_term_load($entity->category[\'und\'][0][\'tid\'])->name;}  ',
+        'display_format' => '$display_output = $entity_field_item[\'value\'];',
+        'store' => 1,
+        'database' => array(
+          'data_type' => 'varchar',
+          'data_length' => 32,
+          'data_size' => 'normal',
+          'data_precision' => 10,
+          'data_scale' => 2,
+          'data_not_NULL' => FALSE,
+          'data_default' => NULL,
+          'data_index' => FALSE,
+        ),
+      ),
+     ),
+	 
+  );
+}
+
+/**
+ * Define the field instances for our content type.
+ *
+ * The instance lets Drupal know which widget to use to allow the user to enter
+ * data and how to react in different view modes.
+ * This big array is factored into this function for readability.
+ *
+ * @return
+ *  An associative array specifying the instances we wish to add to our new
+ *  node type.
+ */
+  function _combination_installed_instances() {
+	//TODO
+	return array(
+  	'combination_sub_ref' => array(
+	  'field_name' => 'combination_sub_ref',
+	  'label' => 'Sub Combination Ref',
+	  'type' => 'entityreference', //TODO
+	  'required' => TRUE,
+	  'widget' => array(   
+			'type' =>  'multiple_selects', 		
+	  ),
+	),  
+		
+  );
+ }
+ 
+ 
+ function _combination_sub_installed_instances() {
+	//TODO
+	return array(
+  	'sub_food_ref' => array(
+	  'field_name' => 'sub_food_ref',
+	  'label' => 'sub_food_ref',
+	  'type' => 'entityreference', //TODO
+	  'required' => TRUE,
+	  'widget' => array(   
+			'type' =>  'multiple_selects', 		
+	  ),
+	),  
+		
+  );
+ }
+ 
+function _food_item_installed_instances() {
+  return array(
+    'desc' => array(
+      'field_name'  => 'desc',
+      'label' => t('Description'),
+      'type'        => 'text',
+      //'widget'      => array(
+      //  'type'    => 'text_textfield',		
+      //),
+    ),
+    'price' => array(
+      'field_name'  => 'price',
+      'label' => t('Price'),
+      'type'        => 'number_decimal',
+      //'widget'      => array(
+      //  'type'    => 'text_textfield',
+      //,
+    ),
+    'image' => array(
+      'field_name'  => 'image',
+      'label'       => t('Image'),
+      'required'    => FALSE,
+      'widget' => array(
+        'type'    => 'image_image',
+        'weight'  => 2.10,
+      ),
+    ),
+	
+  	'category' => array(
+	  'field_name' => 'category',
+	  'label' => 'Category',
+	  'type' => 'taxonomy_term_reference',
+	  'required' => TRUE,
+	  'widget' => array(   
+			'type' =>  'options_select', 		
+	  ),
+	),  
+	
+	// New computed
+  	'parent_category' => array(
+	  'field_name' => 'parent_category',
+	  'label' => 'Parent Category',
+	  'type' => 'computed',
+	  'required' => TRUE,
+	  'default_widget' => 'computed',
+      'default_formatter' => 'computed_field_plain',
+      // If we followed the core convention of separate fields for each data
+      // type we could make Entity API happy by just setting a property_type.
+      // Instead we have to use our own callback to determine the type then
+      // rerun theirs to setup the rest of the field properties.
+      'property_callbacks' => array('computed_field_entity_property_callback'),
+	),  
+	
+	'child_category' => array(
+	  'field_name' => 'child_category',
+	  'label' => 'Child Category',
+	  'type' => 'computed',
+	  'required' => TRUE,
+	  'default_widget' => 'computed',
+      'default_formatter' => 'computed_field_plain',
+      // If we followed the core convention of separate fields for each data
+      // type we could make Entity API happy by just setting a property_type.
+      // Instead we have to use our own callback to determine the type then
+      // rerun theirs to setup the rest of the field properties.
+      'property_callbacks' => array('computed_field_entity_property_callback'),
+	),  
+		
+  );
+}
+
+// --------------------------------------------
+// ----------------- PERMISSIONS --------------
+// --------------------------------------------
+
+/**
+ * Define roles and their wait.
+ *
+ * New Role owner
+ */
+function simple_restaurant_menu_default_roles() {
+  $roles = array();
+  $roles['owner'] = array(
+    'name' => 'owner',
+    'weight' => '3',
+  );
+  return $roles;
+}
+
+/**
+ * simple_restaurant_menu new permission
+ *
+ * New Permissions created by the module and granted to users
+ */
+function _simple_restaurant_menu_new_permissions(){
+
+	//TODO get vocabulary number for food category
+ // 2 by default
+
+  // gives new permissions to items added by the module
+  return array(
+    'create food_item content' => TRUE, // Grant permission
+	'edit own food_item content' => TRUE, // Grant permission
+	'edit any food_item content' => TRUE, // Grant permission
+	'delete own food_item content' => TRUE, // Grant permission
+	'delete any food_item content' => TRUE, // Grant permissionon
+	//TODO add combination_sub
+	
+	
+	'edit terms in 2' => TRUE, // Grant permission WARNING, CHANGE number if other taxonomy TODO automatic
+	'delete terms in 2' => TRUE, // Grant permission
+	'assign node weight' => TRUE, // Grant permission
+	'access toolbar' => TRUE, // Grant permission
+	'view the administration theme' => TRUE,
+    //'access dashboard' => FALSE, // Revoke permission
+  );
+  
+}
+
+
+/**
+// --------------------------------------------
+* 			Uninstall module
+// --------------------------------------------
+*/
+function simple_restaurant_menu_uninstall(){
+//delete content
+//TODO DELETE ALL FOOD_ITEM CONTENT
+
+
+//delete fields of food item
+foreach (array_keys(_food_item_installed_fields()) as $field) {
+	$instance = field_info_instance('node', $field, 'food_item');
+	field_delete_instance($instance);//necessary ?
+    field_delete_field($field);
+  }
+  
+  //delete fields of 
+foreach (array_keys(_combination_sub_installed_fields()) as $field) {
+	$instance = field_info_instance('node', $field, 'combination_sub');
+	field_delete_instance($instance);//necessary ?
+    field_delete_field($field);
+  }
+  
+    //delete fields of 
+foreach (array_keys(_combination_installed_fields()) as $field) {
+	$instance = field_info_instance('node', $field, 'combination');
+	field_delete_instance($instance);//necessary ?
+    field_delete_field($field);
+  }
+  /*
+  $instances = field_info_instance('node', 'food_item');
+  debug($instances);
+  foreach ($instances as $instance_name => $instance) {
+	debug($instance);
+    field_delete_instance($instance);
+  }
+  */
+  //TODO DELETE ROLE OWNER
+
+}
+
+/**
+ * Implements hook_field_schema().
+ *
+ * Defines the database schema of the field, using the format used by the
+ * Schema API.
+ *
+ * @see http://drupal.org/node/146939
+ * @see schemaapi
+ * @see hook_field_schema()
+ * @ingroup field_example
+ */
+function simple_restaurant_menu_field_schema($field) {
+  $columns = array(
+    'text' => array('type' => 'varchar', 'length' => 7, 'not null' => FALSE),
+  );
+  $indexes = array(
+    'text' => array('text'),
+  );
+  return array(
+    'columns' => $columns,
+    'indexes' => $indexes,
+  );
+}

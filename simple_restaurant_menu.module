@@ -1,0 +1,635 @@
+<?php
+
+/**
+ * @defgroup simple_restaurant_menu 
+ */
+  /* Debuging loop
+    foreach ($items[0]['relations'] as $key => $value) {
+    variable_set($key, $value);
+    drupal_set_message(t('%name has value %value', array('%name' => $key, '%value' => print_r($value, TRUE))));
+  }
+  
+  */
+ 
+
+/**
+ * Implement hook_form().
+ *
+ * Make the node visible
+ */
+function simple_restaurant_menu_form($node, $form_state) {
+  return node_content_form($node, $form_state);
+ }
+
+
+
+ // --------------------------------------------
+ // ----------------- PERMISSIONS --------------
+ // --------------------------------------------
+
+/**
+ * Implements hook_permission().
+ *
+ * Add one permission type linked to the module
+ */
+function simple_restaurant_menu_permission() {
+  return array(
+    'Administer Module simple_restaurant_menu' => array(
+      'title' => t('Administer Module simple_restaurant_menu'),
+      'description' => t('Perform administration tasks for module simple_restaurant_menu'),
+    ),
+  );
+  
+}
+
+ // --------------------------------------------
+ // --------------- MENU - PAGES ---------------
+ // --------------------------------------------
+ 
+/**
+ * Implements hook_menu().
+ * 
+ * Create different pages for the modules
+ */
+function simple_restaurant_menu_menu() {
+
+$items = array();
+// Up Menu for admin module by owner
+  $items['admin/simple_restaurant'] = array(
+    'title' => t('Simple Restaurant'),
+    'access arguments' => array('access content'),
+	'description'	   => t('Admin pages for Simple Restaurant Module'),
+	'type'             => MENU_NORMAL_ITEM,
+	'menu_name'        => 'Management',
+  );
+  
+  $items['admin/simple_restaurant/food_admin'] = array(
+    'title' => t('Food Admin'),
+    'page callback' => 'food_admin_page',
+    'access arguments' => array('access content'),
+	'description'	   => t('Add or modify Food Items'),
+	'type'             => MENU_NORMAL_ITEM,
+	'menu_name'        => 'Management',
+  );
+  
+  $items['admin/simple_restaurant/category_admin'] = array(
+    'title' => t('Category Admin'),
+    'page callback' => 'category_admin_page',
+    'access arguments' => array('access content'),
+	'description'	   => t('Add or modify Food Categories'),
+	'type'             => MENU_NORMAL_ITEM,
+	'menu_name'        => 'Management',
+  );
+  
+   $items['admin/simple_restaurant/combination_add'] = array(
+     'title' => t('Combination add'),
+     'page callback' => 'drupal_get_form',
+     'page arguments' => array('combination_form'),
+	 'access arguments' => array('access content'),
+	 'description'	   => t('Add or modify combo'),
+	 'type'             => MENU_NORMAL_ITEM,
+	 'menu_name'        => 'Management',
+   );
+   
+    $items['admin/simple_restaurant/combinations'] = array(
+     'title' => t('Combinations'),
+     'page callback' => 'combinations_admin_page',
+	 'access arguments' => array('access content'),
+	 'description'	   => t('Add or modify combo'),
+	 'type'             => MENU_NORMAL_ITEM,
+	 'menu_name'        => 'Management',
+   );
+
+  $items['menu'] = array(
+    'title' => t('Menu'),
+    'page callback' => 'menu_page',
+    'access arguments' => array('access content'),
+    'type'             => MENU_NORMAL_ITEM,
+	'menu_name'        => 'main-menu',
+  );
+
+  return $items;
+}
+
+/**
+ * Edit Category Admin page
+ */
+function category_admin_page(){
+
+  $items = array();
+
+  //drupal_add_css(drupal_get_path('module', 'simple_restaurant_menu') . '/simple_restaurant-views.css');
+
+  //Bloc taxonomy edit terms
+  
+  $vocabulary = taxonomy_vocabulary_machine_name_load('food_category');
+  module_load_include('inc', 'taxonomy', 'taxonomy.admin');  
+  $items[0] = drupal_get_form('taxonomy_form_term', $vocabulary);
+  
+  $items[0]['actions']['submit']['#value'] = t('Add food category');
+  
+  //$items[0]['relations']['parent']['#disabled'] = TRUE;//Empeche la création
+  $items[0]['description']['#access'] = FALSE;
+
+  $items[0]['path'] = array();
+  $items[0]['name']['#value'] = t('Enter new category');
+  
+  $items[1] = drupal_get_form('taxonomy_overview_terms', $vocabulary);
+  
+  return $items;
+  
+}
+
+ /**
+ * Edit Food Admin page
+ */
+function food_admin_page(){
+
+  $items = array();
+  
+   //drupal_add_css(drupal_get_path('module', 'simple_restaurant_menu') . '/simple_restaurant-views.css');
+
+  $items[0] = array(
+    '#markup' => '<ul class=\'action-links\'><li>' . t('<a href="../../node/add/food-item">Add Food ItemTODO better link</a>') . '</li></ul>',
+  );
+	//block view of food content admin 
+	//TODO Insert block
+  return $items;
+}
+
+ /**
+ * Edit Combination page
+ */
+function combinations_admin_page(){
+
+  $items = array();
+  
+   //drupal_add_css(drupal_get_path('module', 'simple_restaurant_menu') . '/simple_restaurant-views.css');
+  
+  $items[0] = array(
+    '#markup' => '<ul class=\'action-links\'><li>' . t('<a href="./combination_add">TODO add combination REFAIRE MODELE</a>') . '</li></ul>',
+  );
+	//block view of food content admin TODO
+  return $items;
+}
+ /**
+ * Edit Menu page
+ */
+function menu_page(){
+
+  $items = array();
+  drupal_add_css(drupal_get_path('module', 'simple_restaurant_menu') . '/simple_restaurant-views.css');
+ 
+  return $items;
+}
+
+
+//-------------------------------------
+//------------- FORMS
+//-------------------------------------
+
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Alter food_item and taxonomy form for non-administrator profile
+ */
+function simple_restaurant_menu_form_alter(&$form, $form_state, $form_id) {
+  // hide extraneous options in the node form for nodetype nodes
+  //TODO pas pour admin, mais pour owner
+  //dsm($form_id);	
+  if (!user_access('Administer Module simple_restaurant_menu')){
+  
+    switch($form_id){
+	  case  'food_item_node_form' :
+		$form['path']['#access'] = FALSE;
+		$form['menu']['#access'] = FALSE;
+		$form['author']['#access'] = FALSE;
+		$form['options']['#access'] = FALSE;
+		$form['comment_settings']['#access'] = FALSE;
+		$form['revision_information']['#access'] = FALSE;
+
+	    //Force redirection after creation of node
+		//TODO $var instead of admin/rest ? BETTER LINK
+	    $form['#action'] = base_path().'node/add/food-item?destination=admin/simple_restaurant/food_admin';		
+		break;
+		
+	 case 'combination_node_form' :
+	
+		break;
+		
+	 case 'taxonomy_form_term' :
+	   //unset($form['relations']);
+	   $form['relations']['#access'] = FALSE;
+	   $form['description']['#access'] = FALSE;
+	   
+	   break;
+
+	}  
+  }	
+
+}
+
+ 
+
+/**
+ * From handbook page http://drupal.org/node/717746.
+ * 
+ * Form that handle a single combination
+ */
+function combination_form($form, &$form_state) {
+
+  //$form_state['param']['combination_name'] = t('New Combination');
+  //$form_state['param']['sub_combination_name']['1'] =t('New Sub Combination');
+  
+  // Fill list of food item to chose from
+  $nodes = node_load_multiple(array(), array('type' => "food_item")); 
+
+  foreach($nodes as $products){
+    $food_item_list[$products->nid] = $products->title;
+  }
+dsm($food_item_list);
+
+  //Get paramaters, if not empty it's a creation, otherwise a modification
+  $param = drupal_get_query_parameters();
+ 
+  if(! empty($param['nid']) &&  empty($form_state['param']['first']) ){
+  //It's a modification as the nid is not null
+  //So we need to fill the form with the content related to this combination (if it exists))
+  $combination = node_load($param['nid']);
+  
+  if(! empty($combination)){
+  //dsm($combination);  
+  //Identifie first load
+  $form_state['param']['first'] = true;
+  
+  $form_state['param']['combination_name'] = $combination->title;
+
+   if(! empty($combination->combination_sub_ref[LANGUAGE_NONE]))
+   {
+	  $sub_combinations = $combination->combination_sub_ref[LANGUAGE_NONE];
+	  /*
+	  $form['#tree'] = TRUE;
+
+	  $form['description'] = array(
+		'#type' => 'item',
+		'#title' => $form_state['param']['combination_name'],
+	  );
+	   */
+	   //Combinations sub group list
+	  for ($i = 0; $i < sizeof($sub_combinations) ; $i++){
+		
+	    $sub_combination = node_load($sub_combinations[$i]['target_id']);		
+
+		$food_items = $sub_combination->sub_food_ref[LANGUAGE_NONE];
+		for ($j = 0; $j < sizeof($food_items) ; $j++){
+		  
+		  $food_item = node_load($food_items[$j]['target_id']);			
+		  $food_selected[$i+1][$j+1] = $food_item->nid ;	
+		}
+			
+		$form_state['nb_food_items'][$i] = sizeof($food_items)+1;	
+		debug($sub_combination->title);
+		//$form_state['param']['sub_combination_name'][$i+1] = $sub_combination->title;
+		$sub_combination_name[$i+1] = $sub_combination->title;
+
+	   }
+	   
+	   //Create number of sub in form
+	   $form_state['nb_sub_combinations'] = sizeof($sub_combinations);
+	   
+	   
+   }else{
+    debug('Sub combination empty'); // TOdo id not find => Message
+   }
+  }else{
+	debug('Combination not find'); // TOdo id not find => Message
+  } 
+ }
+ 
+ 
+ //*************************************************************
+  // Add Combination
+
+ 
+  // We will have many fields with the same name, so we need to be able to
+  // access the form hierarchically.
+  $form['#tree'] = TRUE;
+/*
+  $form['description'] = array(
+    '#type' => 'item',
+    '#title' => t('A form with dynamically added new fields'),
+  );
+*/
+  //If not in modif, we set number of sub combinations to 1
+  if (empty($form_state['nb_sub_combinations'])) {
+    $form_state['nb_sub_combinations'] = 1;
+  }
+
+    
+  // Build the number of name fieldsets indicated by $form_state['nb_sub_combinations']
+  //module_load_include('inc', 'node', 'node.pages');
+  for ($i = 1; $i <= $form_state['nb_sub_combinations']; $i++) {
+	
+	if (empty($form_state['nb_food_items'][$i])) {
+      $form_state['nb_food_items'][$i] = 1;
+    }
+
+    $form['save_combination'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save combination'),
+      '#submit' => array('combination_form_save'),
+    );
+  
+    if(empty($combination->title) ){
+	   $form['combi_name'] = array(
+      '#type' => 'textfield',
+	  '#title' => t('Combination Name'),
+	  '#size' => 30,
+      '#maxlength' => 20,
+      '#required' => TRUE,
+	  //'#value' => $form_state['param']['combination_name'],
+    );
+	}else{
+			   $form['combi_name'] = array(
+      '#type' => 'textfield',
+	  '#title' => t('Combination Name'),
+	  '#size' => 30,
+      '#maxlength' => 20,
+      '#required' => TRUE,
+	  '#value' => $form_state['param']['combination_name'],
+    );
+	}
+
+  
+	$form['name'][$i] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Sub Menu #@num', array('@num' => $i)),
+      '#collapsible' => TRUE,
+      '#collapsed' => FALSE,
+    );
+	
+	
+	if(empty($sub_combination_name[$i])){
+			$form['name'][$i]['title'] = array(
+      '#type' => 'textfield',
+	  '#title' => t('Name'),
+	  '#size' => 30,
+      '#maxlength' => 20,
+      '#required' => TRUE,
+      );
+	}else{
+			$form['name'][$i]['title'] = array(
+      '#type' => 'textfield',
+	  '#title' => t('Name'),
+	  '#size' => 30,
+      '#maxlength' => 20,
+      '#required' => TRUE,
+	  '#value' => $sub_combination_name[$i],
+	  //'#value' => $form_state['param']['sub_combination_name'][$i+1],
+      );
+	}
+
+  
+  	//Create the food items
+	for ($j = 1; $j <= $form_state['nb_food_items'][$i]; $j++) {
+			
+		if(empty($food_selected[$i][$j])){
+					$form['name'][$i][$j]['widget'] = array(
+		  '#type' => 'select',
+		  //'#type' => 'textfield',
+		  //'#title' => t('Plat'),
+		  '#options' => $food_item_list ,
+		  //'#default_value' => $food_selected[$i][$j],
+		  //'#default_value' => $form['name'][$place_in_table][$place_in_sub]['widget']['#value'],
+		  //'#description' => t("List de plat?"),
+		  //'#size' => 20,
+		  //'#maxlength' => 20,
+		  '#required' => TRUE,
+		);
+		}else{
+					$form['name'][$i][$j]['widget'] = array(
+		  '#type' => 'select',
+		  //'#type' => 'textfield',
+		  //'#title' => t('Plat'),
+		  '#options' => $food_item_list ,
+		  '#default_value' => $food_selected[$i][$j],
+		  //'#default_value' => $form['name'][$place_in_table][$place_in_sub]['widget']['#value'],
+		  //'#description' => t("List de plat?"),
+		  //'#size' => 20,
+		  //'#maxlength' => 20,
+		  '#required' => TRUE,
+		);
+		}
+
+	}
+	  // Adds "Add another name" button
+ dsm($i);
+    //$form_state['param']['i'] = $i;
+    $form['name'][$i]['add_sub'] = array(
+      '#type' => 'submit',
+      '#value' => t('Add another food item ('. $i .')'),
+      '#submit' => array('combination_add_food'),
+	  '#attributes'=>array('button_index'=>$i)
+    );
+	
+	
+	if ($form_state['nb_food_items'][$i] > 1) {
+    $form['name'][$i]['remove_name'] = array(
+      '#type' => 'submit',
+      '#value' => t('Remove latest food ('. $i .')'),
+      '#submit' => array('combination_remove_food'),
+      // Since we are removing a name, don't validate until later.
+      '#limit_validation_errors' => array(),
+	  '#attributes'=>array('button_index'=>$i)
+    );
+  }
+  }
+
+  // Adds "Add another name" button
+  $form['add_name'] = array(
+    '#type' => 'submit',
+    '#value' => t('Add another name'),
+    '#submit' => array('combination_form_add_sub'),
+	
+  );
+  
+
+  // If we have more than one name, this button allows removal of the
+  // last name.
+  if ($form_state['nb_sub_combinations'] > 1) {
+    $form['remove_name'] = array(
+      '#type' => 'submit',
+      '#value' => t('Remove latest name'),
+      '#submit' => array('combination_remove_sub'),
+      // Since we are removing a name, don't validate until later.
+      '#limit_validation_errors' => array(),
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Submit handler for "Add another name" button 
+ *
+ * $form_state['nb_sub_combinations'] tells the form builder function how many name
+ * fieldsets to build, so here we increment it.
+ *
+ * All elements of $form_state are persisted, so there's no need to use a
+ * particular key, like the old $form_state['storage']. We can just use
+ * $form_state['nb_sub_combinations'].
+ */
+function combination_form_add_sub($form, &$form_state) {
+
+  // Everything in $form_state is persistent, so we'll just use
+  // $form_state['add_name']
+  $form_state['nb_sub_combinations']++;
+
+  // Setting $form_state['rebuild'] = TRUE causes the form to be rebuilt again.
+  $form_state['rebuild'] = TRUE;
+}
+function combination_add_food($form, &$form_state) {
+dsm($form_state);
+  $param = $form_state['clicked_button']['#attributes']['button_index'];
+dsm($param);
+  $form_state['nb_food_items'][$param]++;
+
+  $form_state['rebuild'] = TRUE;
+}
+
+function combination_remove_sub($form, &$form_state) {
+  if ($form_state['nb_sub_combinations'] > 1) {
+    $form_state['nb_sub_combinations']--;
+  }
+
+  // Setting $form_state['rebuild'] = TRUE causes the form to be rebuilt again.
+  $form_state['rebuild'] = TRUE;
+}
+
+
+// TODO doesn't work when theres a combination type above
+function combination_remove_food($form, &$form_state) {
+  //TODO trouver id de la form cliquée
+  dsm($form_state);
+  $param = $form_state['clicked_button']['#attributes']['button_index'];
+  //$param = $form_state['param']['i'];
+dsm($param);
+  if ($form_state['nb_food_items'][$param] > 1) {
+	$form_state['nb_food_items'][$param]--;
+  }
+
+  // Setting $form_state['rebuild'] = TRUE causes the form to be rebuilt again.
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Submit combination
+ * 
+ * Create the combination
+ * Inspire from https://drupal.org/node/1388922
+ */
+function combination_form_save($form, &$form_state) {
+
+  //global $user;
+  $node = new stdClass();
+  $node->title = $form['combi_name']['#value'];
+  $node->type = "combination";
+  node_object_prepare($node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
+  $node->language = LANGUAGE_NONE; // Or e.g. 'en' if locale is enabled
+  //$node->uid = $user->uid;
+  $node->status = 1; //(1 or 0): published or not
+  $node->promote = 0; //(1 or 0): promoted to front page
+  $node->comment = 1; // 0 = comments disabled, 1 = read only, 2 = read/write
+
+  $inames = 1 ;
+  while ($inames <= $form_state['nb_sub_combinations'] ){
+  // For each sub menu, create a sub combination link to the combination
+	
+	$food_ref['target_id'] =   create_sub_combination($form, $form_state,$inames);  
+    $food_ref['target_type'] = 'node';
+  
+    $node->combination_sub_ref[$node->language][] = $food_ref;
+    $node = node_submit($node); // Prepare node for saving
+    node_save($node);	
+	
+  	$inames++;
+  }
+
+  drupal_set_message(t('Combination Saved'));
+  
+}
+
+function create_sub_combination($form, &$form_state,$place_in_table){
+  
+  $node = new stdClass();
+  $node->title = $form['name'][$place_in_table]['title']['#value'];
+  $node->type = "combination_sub";
+  node_object_prepare($node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
+  $node->language = LANGUAGE_NONE; // Or e.g. 'en' if locale is enabled
+  //$node->uid = $user->uid;
+  $node->status = 1; //(1 or 0): published or not
+  $node->promote = 0; //(1 or 0): promoted to front page
+  $node->comment = 1; // 0 = comments disabled, 1 = read only, 2 = read/write
+  // Term reference (taxonomy) field
+  //$node->field_product_tid[$node->language][]['tid'] = $form_state['values']['a taxonomy term id'];
+  // Entity reference field
+
+ $place_in_sub = 1;
+ while($place_in_sub <= $form_state['nb_food_items'][$place_in_table]){
+//Add the food items to the sub menu
+ 
+    $food_ref['target_id'] =   $form['name'][$place_in_table][$place_in_sub]['widget']['#value'];    
+    $food_ref['target_type'] = 'node';
+  
+    $node->sub_food_ref[$node->language][] = $food_ref;
+    $node = node_submit($node); // Prepare node for saving
+    node_save($node);
+
+	//drupal_set_message($form['name'][$place_in_table][$place_in_sub]['widget']['#value']);
+ 	$place_in_sub++;
+		
+ }
+  
+  //drupal_set_message($node->nid);
+	return $node->nid;
+	
+}
+ 
+
+/**
+ *----------------------------------------------------
+ *------------------     VIEWS      ------------------
+ *----------------------------------------------------
+ */
+ 
+/**
+ * Implements hook_views_api().
+ */
+function simple_restaurant_menu_views_api() {
+  return array('api' => 3.0);
+}
+
+/**
+ * Implements hook_views_default_views().
+ */
+function simple_restaurant_menu_views_default_views() {
+ 
+// exported view goes here
+
+$view = view_food_menu();
+$views[$view->name] = $view;
+
+$view2 = view_food_admin();
+$views[$view2->name] = $view2;
+
+$view3 = view_combination();
+$views[$view3->name] = $view3;
+
+return $views;
+}
+
+
+/**
+ * @} End of "defgroup simple_restaurant_menu".
+ */

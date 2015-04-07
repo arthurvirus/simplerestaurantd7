@@ -1,0 +1,74 @@
+/* + olpi test */
+
+.view-food-menu-title
+{
+font-weight:bold;
+}
+
+.view-food-menu-price
+{
+float:right;
+}
+
+.view-food-menu-description
+{
+font-style:italic;
+}
+
+.view-food-menu
+{
+ max-width:500px;
+ margin: 0 auto;
+}
+
+.view-food-admin
+{
+ max-width:600px;
+ 
+}
+
+/* Table for opening hours */
+
+#opening_table{
+  max-width:300px;
+  min-width:200px;
+  width:50%;
+  font-size:9px;
+  border: thin solid black;
+ margin-left: auto;
+margin-right: auto;
+
+}
+#opening_table thead{
+  font-size:12px;
+  text-align:left ;
+  border: thin solid black;
+  
+}
+#opening_table td, th {
+ border: 0px solid red ;
+}
+
+/* Contact Style */
+.contact-information
+{
+ max-width:600px;
+ 
+}
+
+
+/* redefine artisteer table def*/
+/*
+.art-article table, table.art-article 
+{
+   margin: auto;
+   padding: 2px;
+}*/
+/* WHY IN EARTH ??? */
+.art-article th, .art-article td
+{
+   border: 0px solid red;
+   text-align:left;
+   padding: 2px;
+}
+
