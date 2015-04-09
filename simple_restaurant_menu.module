@@ -198,20 +198,40 @@ function simple_restaurant_menu_form_alter(&$form, $form_state, $form_id) {
   // hide extraneous options in the node form for nodetype nodes
   //TODO pas pour admin, mais pour owner
   //dsm($form_id);	
-  if (!user_access('Administer Module simple_restaurant_menu')){
-  
+  if (user_access('Administer Module simple_restaurant_menu')){ //TODO restric on admin not simple_restaurant_admin...
+
     switch($form_id){
 	  case  'food_item_node_form' :
 		$form['path']['#access'] = FALSE;
 		$form['menu']['#access'] = FALSE;
-		$form['author']['#access'] = FALSE;
+		$form['author']['#access'] = FALSE;	
+		
+		//No publish options (all publish)
 		$form['options']['#access'] = FALSE;
+		
+		//With publish options, but limited
+		// $form['options']['promote'] = [];
+		// $form['options']['sticky'] = [];
+		// $form['options']['status']['#title'] = t('Publish immediately');		
+		
 		$form['comment_settings']['#access'] = FALSE;
 		$form['revision_information']['#access'] = FALSE;
 
 	    //Force redirection after creation of node
 		//TODO $var instead of admin/rest ? BETTER LINK
 	    $form['#action'] = base_path().'node/add/food-item?destination=admin/simple_restaurant/food_admin';		
+		
+		//TODO limit taxonomy choices
+		//TODO loop on languages !!!!
+		$lang = 'und';
+		//TODO		
+		dsm($form['category'][$lang]['#options']);
+		$i = 3;
+	    //TODO for each option, if this option has child, delete it.		
+		$tterm = taxonomy_get_term_by_name($form['category'][$lang]['#options'][$i]);
+		dsm(taxonomy_get_children($tterm[1]->tid));
+
+
 		break;
 		
 	 case 'combination_node_form' :
@@ -219,14 +239,15 @@ function simple_restaurant_menu_form_alter(&$form, $form_state, $form_id) {
 		break;
 		
 	 case 'taxonomy_form_term' :
-	   //unset($form['relations']);
 	   $form['relations']['#access'] = FALSE;
 	   $form['description']['#access'] = FALSE;
 	   
 	   break;
 
 	}  
-  }	
+  }
+
+  
 
 }
 
