@@ -183,7 +183,7 @@ $handler->display->display_options['filters']['type']['value'] = array(
 /* Display: Block */
 $handler = $view->new_display('block', 'Block', 'block');
 $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
-
+$handler->display->display_options['block_description'] = 'Food Admin';
 
 return $view;
 

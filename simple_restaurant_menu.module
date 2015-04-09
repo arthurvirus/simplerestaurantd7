@@ -153,7 +153,20 @@ function food_admin_page(){
     '#markup' => '<ul class=\'action-links\'><li>' . t('<a href="../../node/add/food-item">Add Food ItemTODO better link</a>') . '</li></ul>',
   );
 	//block view of food content admin 
-	//TODO Insert block
+	
+	
+	$name = 'food_admin';
+$display_id = '';
+/*
+$view = views_get_view($name);
+if (!$view || !$view->access($display_id)) {
+  return;
+}
+$view_content = $view->preview($display_id);
+$items[0] = $view_content;
+*/
+//OR TODO modify block page view
+
   return $items;
 }
 
