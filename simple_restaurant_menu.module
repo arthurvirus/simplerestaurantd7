@@ -234,15 +234,19 @@ function simple_restaurant_menu_form_alter(&$form, $form_state, $form_id) {
 		//TODO $var instead of admin/rest ? BETTER LINK
 	    $form['#action'] = base_path().'node/add/food-item?destination=admin/simple_restaurant/food_admin';		
 		
-		//TODO limit taxonomy choices
-		//TODO loop on languages !!!!
+		// limit taxonomy choices
+		//TODO LANG loop on languages !!!!
 		$lang = 'und';
-		//TODO		
+		//dsm($form['category'][$lang]['#options']);
+
+	    //for each option, if this option has child, delete it.
 		dsm($form['category'][$lang]['#options']);
-		$i = 3;
-	    //TODO for each option, if this option has child, delete it.		
-		$tterm = taxonomy_get_term_by_name($form['category'][$lang]['#options'][$i]);
-		dsm(taxonomy_get_children($tterm[1]->tid));
+		for ($row = 1; $row < count($form['category'][$lang]['#options']); $row ++) {	
+		  $tterm = taxonomy_get_term_by_name(str_replace ('-','',$form['category'][$lang]['#options'][$row]));
+		  if(count(taxonomy_get_children($tterm[$row]->tid) ) > 0){		  	
+		    unset($form['category'][$lang]['#options'][$row]);
+		  }
+		}
 
 
 		break;
@@ -264,7 +268,7 @@ function simple_restaurant_menu_form_alter(&$form, $form_state, $form_id) {
 
 }
 
- 
+
 
 /**
  * From handbook page http://drupal.org/node/717746.
@@ -395,7 +399,7 @@ dsm($food_item_list);
     );
 	}
 
-  
+ 
 	$form['name'][$i] = array(
       '#type' => 'fieldset',
       '#title' => t('Sub Menu #@num', array('@num' => $i)),
