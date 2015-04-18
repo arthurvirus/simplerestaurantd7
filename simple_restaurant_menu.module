@@ -119,22 +119,34 @@ function category_admin_page(){
   $items = array();
 
   //drupal_add_css(drupal_get_path('module', 'simple_restaurant_menu') . '/simple_restaurant-views.css');
+  
 
+  
   //Bloc taxonomy edit terms
   
   $vocabulary = taxonomy_vocabulary_machine_name_load('food_category');
   module_load_include('inc', 'taxonomy', 'taxonomy.admin');  
-  $items[0] = drupal_get_form('taxonomy_form_term', $vocabulary);
   
-  $items[0]['actions']['submit']['#value'] = t('Add food category');
+
+  
+  $items[1] = drupal_get_form('taxonomy_form_term', $vocabulary);  
+  $items[1]['actions']['submit']['#value'] = t('Add food category');
   
   //$items[0]['relations']['parent']['#disabled'] = TRUE;//Empeche la création
-  $items[0]['description']['#access'] = FALSE;
+  $items[1]['description']['#access'] = FALSE;
 
-  $items[0]['path'] = array();
-  $items[0]['name']['#value'] = t('Enter new category');
+  $items[1]['path'] = array();
+  $items[1]['name']['#value'] = t('Enter new category');
   
-  $items[1] = drupal_get_form('taxonomy_overview_terms', $vocabulary);
+  
+  //Warning for the two level max
+  $items[0] = array(
+  		'#markup' => t('Warning, only two levels of category will be displayed on the menu'),
+  );
+  
+  $items[2] = drupal_get_form('taxonomy_overview_terms', $vocabulary);
+  
+
   
   return $items;
   
@@ -182,7 +194,7 @@ function combinations_admin_page(){
   $items[0] = array(
     '#markup' => '<ul class=\'action-links\'><li>' . t('<a href="./combination_add">TODO add combination REFAIRE MODELE</a>') . '</li></ul>',
   );
-	//block view of food content admin TODO
+
   return $items;
 }
  /**
@@ -210,9 +222,9 @@ function menu_page(){
 function simple_restaurant_menu_form_alter(&$form, $form_state, $form_id) {
   // hide extraneous options in the node form for nodetype nodes
   //TODO pas pour admin, mais pour owner
-  //dsm($form_id);	
-  if (user_access('Administer Module simple_restaurant_menu')){ //TODO restric on admin not simple_restaurant_admin...
-
+	
+	//Modification for  owner and not admin
+  if (user_access('Administer Module simple_restaurant_menu') && ! user_access('Administer content types') ){ 
     switch($form_id){
 	  case  'food_item_node_form' :
 		$form['path']['#access'] = FALSE;
@@ -237,17 +249,20 @@ function simple_restaurant_menu_form_alter(&$form, $form_state, $form_id) {
 		// limit taxonomy choices
 		//TODO LANG loop on languages !!!!
 		$lang = 'und';
-		//dsm($form['category'][$lang]['#options']);
 
-	    //for each option, if this option has child, delete it.
-		dsm($form['category'][$lang]['#options']);
-		for ($row = 1; $row < count($form['category'][$lang]['#options']); $row ++) {	
-		  $tterm = taxonomy_get_term_by_name(str_replace ('-','',$form['category'][$lang]['#options'][$row]));
-		  if(count(taxonomy_get_children($tterm[$row]->tid) ) > 0){		  	
-		    unset($form['category'][$lang]['#options'][$row]);
+		//If it's more then two level, delete
+		for ($row = 1; $row < count($form['category'][$lang]['#options']); $row ++) {
+			if(mb_substr_count($form['category'][$lang]['#options'][$row], '-') > 1 ){
+				unset($form['category'][$lang]['#options'][$row]);
+			}
+		}
+	    //for each option, if this option has child, delete it.  (ignore level > 2 child)
+		for ($row = 1; $row < count($form['category'][$lang]['#options']); $row ++) {			  
+		  $tterm = taxonomy_get_term_by_name(str_replace ('-','',$form['category'][$lang]['#options'][$row]));		  
+		  if(count(taxonomy_get_children($tterm[$row]->tid) ) > 0 && mb_substr_count($form['category'][$lang]['#options'][$row], '-') == 0  ){		  	
+		   unset($form['category'][$lang]['#options'][$row]);
 		  }
 		}
-
 
 		break;
 		
