@@ -224,7 +224,8 @@ function simple_restaurant_menu_form_alter(&$form, $form_state, $form_id) {
   //TODO pas pour admin, mais pour owner
 	
 	//Modification for  owner and not admin
-  if (user_access('Administer Module simple_restaurant_menu') && ! user_access('Administer content types') ){ 
+  if(1 == 1){
+  //if (user_access('Administer Module simple_restaurant_menu') && ! user_access('Administer content types') ){ 
     switch($form_id){
 	  case  'food_item_node_form' :
 		$form['path']['#access'] = FALSE;
@@ -264,13 +265,15 @@ function simple_restaurant_menu_form_alter(&$form, $form_state, $form_id) {
 		  }
 		}
 
-		break;
+	  break;
 		
 	 case 'combination_node_form' :
-	
-		break;
+	  //Replace standard edit combination by custom form
+	  $newform = drupal_get_form('combination_form');	
+	  $form = $newform;
+	  break;
 		
-	 case 'taxonomy_form_term' :
+      case 'taxonomy_form_term' :
 	   $form['relations']['#access'] = FALSE;
 	   $form['description']['#access'] = FALSE;
 	   
@@ -301,16 +304,19 @@ function combination_form($form, &$form_state) {
   foreach($nodes as $products){
     $food_item_list[$products->nid] = $products->title;
   }
-dsm($food_item_list);
 
   //Get paramaters, if not empty it's a creation, otherwise a modification
-  $param = drupal_get_query_parameters();
- 
-  if(! empty($param['nid']) &&  empty($form_state['param']['first']) ){
+  //$param = drupal_get_query_parameters();
+//dsm($param);
+  if (arg(0) == 'node' && is_numeric(arg(1))) $nodeid = arg(1);
+	  //dsm($nodeid);
+  //if(! empty($param['nid']) &&  empty($form_state['param']['first']) ){
+  if(! empty($nodeid) &&  empty($form_state['param']['first']) ){
+  
   //It's a modification as the nid is not null
   //So we need to fill the form with the content related to this combination (if it exists))
-  $combination = node_load($param['nid']);
-  
+  //$combination = node_load($param['nid']);
+  $combination = node_load($nodeid);
   if(! empty($combination)){
   //dsm($combination);  
   //Identifie first load
@@ -333,8 +339,10 @@ dsm($food_item_list);
 	  for ($i = 0; $i < sizeof($sub_combinations) ; $i++){
 		
 	    $sub_combination = node_load($sub_combinations[$i]['target_id']);		
-
-		$food_items = $sub_combination->sub_food_ref[LANGUAGE_NONE];
+		dsm($sub_combination);//?????? TODOpas complète ???????
+		$food_items = $sub_combination->sub_food_ref[LANGUAGE_NONE];//TODO Multilingual
+		debug($sub_combination->title);
+		debug($food_items);
 		for ($j = 0; $j < sizeof($food_items) ; $j++){
 		  
 		  $food_item = node_load($food_items[$j]['target_id']);			
@@ -342,7 +350,7 @@ dsm($food_item_list);
 		}
 			
 		$form_state['nb_food_items'][$i] = sizeof($food_items)+1;	
-		debug($sub_combination->title);
+		
 		//$form_state['param']['sub_combination_name'][$i+1] = $sub_combination->title;
 		$sub_combination_name[$i+1] = $sub_combination->title;
 
@@ -358,7 +366,7 @@ dsm($food_item_list);
   }else{
 	debug('Combination not find'); // TOdo id not find => Message
   } 
- }
+ }//End fill existing combination
  
  
  //*************************************************************
@@ -561,10 +569,10 @@ function combination_remove_sub($form, &$form_state) {
 }
 
 
-// TODO doesn't work when theres a combination type above
+// TODO doesn't work when theres a combination type above ?StILL ???
 function combination_remove_food($form, &$form_state) {
   //TODO trouver id de la form cliquée
-  dsm($form_state);
+  //dsm($form_state);
   $param = $form_state['clicked_button']['#attributes']['button_index'];
   //$param = $form_state['param']['i'];
 dsm($param);
