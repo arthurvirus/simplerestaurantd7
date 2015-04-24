@@ -318,15 +318,15 @@ function combination_form($form, &$form_state) {
   //$combination = node_load($param['nid']);
   $combination = node_load($nodeid);
   if(! empty($combination)){
-  //dsm($combination);  
+  
   //Identifie first load
   $form_state['param']['first'] = true;
   
   $form_state['param']['combination_name'] = $combination->title;
 
-   if(! empty($combination->combination_sub_ref[LANGUAGE_NONE]))
+   if(! empty($combination->combination_sub_ref[LANGUAGE_NONE]))//TODO translate
    {
-	  $sub_combinations = $combination->combination_sub_ref[LANGUAGE_NONE];
+	  $sub_combinations = $combination->combination_sub_ref[LANGUAGE_NONE];//TODO translate
 	  /*
 	  $form['#tree'] = TRUE;
 
@@ -339,10 +339,13 @@ function combination_form($form, &$form_state) {
 	  for ($i = 0; $i < sizeof($sub_combinations) ; $i++){
 		
 	    $sub_combination = node_load($sub_combinations[$i]['target_id']);		
-		dsm($sub_combination);//?????? TODOpas complète ???????
+		
 		$food_items = $sub_combination->sub_food_ref[LANGUAGE_NONE];//TODO Multilingual
+		/* TODO debug
+		dsm($sub_combination);//?????? TODOpas complète ???????		
 		debug($sub_combination->title);
 		debug($food_items);
+		*/
 		for ($j = 0; $j < sizeof($food_items) ; $j++){
 		  
 		  $food_item = node_load($food_items[$j]['target_id']);			
@@ -592,6 +595,30 @@ dsm($param);
  */
 function combination_form_save($form, &$form_state) {
 
+	//TODO First => Delete everything from the previous combination, then start again !
+
+  if (arg(0) == 'node' && is_numeric(arg(1))) $nodeid = arg(1);
+  $combination = node_load($nodeid);
+  //dsm($combination);
+	//Check if it is a modification of a creation.
+  if(! empty($combination)){
+	
+	//loop at combination and delete all sub_combination
+	
+    if(! empty($combination->combination_sub_ref[LANGUAGE_NONE]))//TODO translate
+    {
+	  $sub_combinations = $combination->combination_sub_ref[LANGUAGE_NONE];//TODO translate
+		dsm($sub_combinations);
+	   //Combinations sub group list
+	  for ($i = 0; $i < sizeof($sub_combinations) ; $i++){
+		 $subid = $sub_combinations[$i]['target_id'];
+		 node_delete($subid);
+		}
+    }
+  }
+  //TODO reset form variables
+	
+
   //global $user;
   $node = new stdClass();
   $node->title = $form['combi_name']['#value'];
@@ -616,7 +643,8 @@ function combination_form_save($form, &$form_state) {
 	
   	$inames++;
   }
-
+  
+  //TODO redirection to ALL combinations views
   drupal_set_message(t('Combination Saved'));
   
 }
@@ -645,6 +673,7 @@ function create_sub_combination($form, &$form_state,$place_in_table){
   
     $node->sub_food_ref[$node->language][] = $food_ref;
     $node = node_submit($node); // Prepare node for saving
+ 
     node_save($node);
 
 	//drupal_set_message($form['name'][$place_in_table][$place_in_sub]['widget']['#value']);
