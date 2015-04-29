@@ -271,6 +271,7 @@ function simple_restaurant_menu_form_alter(&$form, $form_state, $form_id) {
 	  //Replace standard edit combination by custom form
 	  $newform = drupal_get_form('combination_form');	
 	  $form = $newform;
+	 
 	  break;
 		
       case 'taxonomy_form_term' :
@@ -323,36 +324,32 @@ function combination_form($form, &$form_state) {
   $form_state['param']['first'] = true;
   
   $form_state['param']['combination_name'] = $combination->title;
+  $form_state['param']['combination_id'] = $combination->nid;
 
    if(! empty($combination->combination_sub_ref[LANGUAGE_NONE]))//TODO translate
    {
 	  $sub_combinations = $combination->combination_sub_ref[LANGUAGE_NONE];//TODO translate
-	  /*
-	  $form['#tree'] = TRUE;
 
-	  $form['description'] = array(
-		'#type' => 'item',
-		'#title' => $form_state['param']['combination_name'],
-	  );
-	   */
 	   //Combinations sub group list
 	  for ($i = 0; $i < sizeof($sub_combinations) ; $i++){
 		
 	    $sub_combination = node_load($sub_combinations[$i]['target_id']);		
 		
 		$food_items = $sub_combination->sub_food_ref[LANGUAGE_NONE];//TODO Multilingual
-		/* TODO debug
-		dsm($sub_combination);//?????? TODOpas complète ???????		
-		debug($sub_combination->title);
-		debug($food_items);
-		*/
-		for ($j = 0; $j < sizeof($food_items) ; $j++){
-		  
-		  $food_item = node_load($food_items[$j]['target_id']);			
+		// TODO debug
+		//dsm($sub_combination);//?????? TODOpas complète ???????		
+		//debug($sub_combination->title);
+		//dsm(sizeof($food_items));
+		//debug($food_items);
+		
+		
+		for ($j = 0; $j < sizeof($food_items) ; $j++){		  
+		  $food_item = node_load($food_items[$j]['target_id']);	
+					  
 		  $food_selected[$i+1][$j+1] = $food_item->nid ;	
 		}
 			
-		$form_state['nb_food_items'][$i] = sizeof($food_items)+1;	
+		$form_state['nb_food_items'][$i+1] = sizeof($food_items);	
 		
 		//$form_state['param']['sub_combination_name'][$i+1] = $sub_combination->title;
 		$sub_combination_name[$i+1] = $sub_combination->title;
@@ -454,10 +451,9 @@ function combination_form($form, &$form_state) {
       );
 	}
 
-  
   	//Create the food items
 	for ($j = 1; $j <= $form_state['nb_food_items'][$i]; $j++) {
-			
+
 		if(empty($food_selected[$i][$j])){
 					$form['name'][$i][$j]['widget'] = array(
 		  '#type' => 'select',
@@ -488,7 +484,6 @@ function combination_form($form, &$form_state) {
 
 	}
 	  // Adds "Add another name" button
- dsm($i);
     //$form_state['param']['i'] = $i;
     $form['name'][$i]['add_sub'] = array(
       '#type' => 'submit',
@@ -554,9 +549,9 @@ function combination_form_add_sub($form, &$form_state) {
   $form_state['rebuild'] = TRUE;
 }
 function combination_add_food($form, &$form_state) {
-dsm($form_state);
+
   $param = $form_state['clicked_button']['#attributes']['button_index'];
-dsm($param);
+
   $form_state['nb_food_items'][$param]++;
 
   $form_state['rebuild'] = TRUE;
@@ -578,7 +573,7 @@ function combination_remove_food($form, &$form_state) {
   //dsm($form_state);
   $param = $form_state['clicked_button']['#attributes']['button_index'];
   //$param = $form_state['param']['i'];
-dsm($param);
+
   if ($form_state['nb_food_items'][$param] > 1) {
 	$form_state['nb_food_items'][$param]--;
   }
@@ -595,33 +590,35 @@ dsm($param);
  */
 function combination_form_save($form, &$form_state) {
 
-	//TODO First => Delete everything from the previous combination, then start again !
+	//First => Delete everything from the previous combination, then start again ! (TODO re-format with update at some point)
 
-  if (arg(0) == 'node' && is_numeric(arg(1))) $nodeid = arg(1);
-  $combination = node_load($nodeid);
-  //dsm($combination);
+	//DIFF from create and modify
+  if( isset($form_state['param']['combination_id'])){
+	  $combination = node_load($form_state['param']['combination_id']);
 	//Check if it is a modification of a creation.
-  if(! empty($combination)){
+      if(! empty($combination)){
 	
-	//loop at combination and delete all sub_combination
-	
-    if(! empty($combination->combination_sub_ref[LANGUAGE_NONE]))//TODO translate
-    {
-	  $sub_combinations = $combination->combination_sub_ref[LANGUAGE_NONE];//TODO translate
-		dsm($sub_combinations);
-	   //Combinations sub group list
-	  for ($i = 0; $i < sizeof($sub_combinations) ; $i++){
-		 $subid = $sub_combinations[$i]['target_id'];
-		 node_delete($subid);
-		}
-    }
+	//loop at combination and delete all sub_combination	
+        if(! empty($combination->combination_sub_ref[LANGUAGE_NONE]))//TODO translate
+        {
+	      $sub_combinations = $combination->combination_sub_ref[LANGUAGE_NONE];//TODO translate
+
+	     //Combinations sub group list
+	      for ($i = 0; $i < sizeof($sub_combinations) ; $i++){
+		   $subid = $sub_combinations[$i]['target_id'];
+		   node_delete($subid);
+		  }
+        }
+		
+		//Delete combination
+		node_delete($form_state['param']['combination_id']);
+     }
   }
-  //TODO reset form variables
-	
 
   //global $user;
   $node = new stdClass();
-  $node->title = $form['combi_name']['#value'];
+  //$node->title = $form['combi_name']['#value'];
+  $node->title = $form_state['input']['combi_name'];
   $node->type = "combination";
   node_object_prepare($node); // Sets some defaults. Invokes hook_prepare() and hook_node_prepare().
   $node->language = LANGUAGE_NONE; // Or e.g. 'en' if locale is enabled
@@ -642,15 +639,19 @@ function combination_form_save($form, &$form_state) {
     node_save($node);	
 	
   	$inames++;
-  }
   
+  }
   //TODO redirection to ALL combinations views
+  
   drupal_set_message(t('Combination Saved'));
   
 }
 
 function create_sub_combination($form, &$form_state,$place_in_table){
-  
+  //dsm('Sub add');
+  //dsm($place_in_table);
+  //dsm($form['name']);
+  //dsm($form_state['nb_food_items']);
   $node = new stdClass();
   $node->title = $form['name'][$place_in_table]['title']['#value'];
   $node->type = "combination_sub";
