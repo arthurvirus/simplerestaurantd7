@@ -498,8 +498,21 @@ function _simple_restaurant_menu_new_permissions(){
 function simple_restaurant_menu_uninstall(){
 //delete content
 //TODO DELETE ALL FOOD_ITEM CONTENT
+// http://drupal.stackexchange.com/questions/73808/what-is-the-proper-way-to-uninstall-a-module-that-adds-a-content-type
+// node_delete($nid);
+// node_type_delete($type);
+
+	//delete all food_item node
+	//delete all sub_combination node
+	//delete all combination node
+
+	//delete combination
+	//delete sub_combination
+	//delete food_item
+	
 
 
+/*WTF ?
 //delete fields of food item
 foreach (array_keys(_food_item_installed_fields()) as $field) {
 	$instance = field_info_instance('node', $field, 'food_item');
@@ -520,6 +533,7 @@ foreach (array_keys(_combination_installed_fields()) as $field) {
 	field_delete_instance($instance);//necessary ?
     field_delete_field($field);
   }
+  */
   /*
   $instances = field_info_instance('node', 'food_item');
   debug($instances);
