@@ -1,5 +1,16 @@
 <?php
 
+ 
+/**
+* implementation of hook_views_pre_render
+*/
+function mymodule_views_pre_render($view) {
+if ($view->name == ‘view_name’) {
+foreach($view->result as $term) {
+$term->term_data_name = tt('taxonomy:term:'.$term->tid.':name', $term->term_data_name);//TODO put in computed fields
+}
+}
+}
 /**
  * @defgroup simple_restaurant_menu 
  */
@@ -224,8 +235,8 @@ function simple_restaurant_menu_form_alter(&$form, $form_state, $form_id) {
   //TODO pas pour admin, mais pour owner
 	
 	//Modification for  owner and not admin
-  if(1 == 1){
-  //if (user_access('Administer Module simple_restaurant_menu') && ! user_access('Administer content types') ){ 
+  //if(1 == 1){
+  if (user_access('Administer Module simple_restaurant_menu') && ! user_access('Administer content types') ){ 
     switch($form_id){
 	  case  'food_item_node_form' :
 		$form['path']['#access'] = FALSE;
