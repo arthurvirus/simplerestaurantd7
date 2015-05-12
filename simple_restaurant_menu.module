@@ -1,10 +1,36 @@
 <?php
+//TODO organised
+//change parent category
+ function simple_restaurant_menu_node_presave($node){
 
+
+  if($node->type == 'food_item'){
+    $langcode = 'und' ;
+	//$langcode = $node->language ;
+	
+	$p = taxonomy_get_parents($node->category[$langcode][0]['tid']);
+	$parent = reset($p);
+	dsm($parent);
+	if($p != null){ 
+		//$entity_field[0]['value'] =taxonomy_term_load($entity->category[$langcode][0]['tid'])->name;
+		
+		//Alors on est l'enfant
+		$node->field_child_category['und'][0]['tid'] = $node->category[$langcode][0]['tid'];
+		//Et il faut éditer le parent
+		
+		$node->field_parent_category['und'][0]['tid'] = $parent->tid;
+	}else{
+		//Si non, alors on est le parent, et il n'y a pas d'enfant
+		$node->field_parent_category['und'][0]['tid'] = $node->category[$langcode][0]['tid'];
+	}  
  
+    }
+  
+}
 /**
 * implementation of hook_views_pre_render
 */
-function mymodule_views_pre_render($view) {
+function simple_restaurant_views_pre_render($view) {
 if ($view->name == ‘view_name’) {
 foreach($view->result as $term) {
 $term->term_data_name = tt('taxonomy:term:'.$term->tid.':name', $term->term_data_name);//TODO put in computed fields
