@@ -281,47 +281,33 @@ function _food_item_installed_fields() {
          ),
        ),
      ), 
-	 //TODO add two computed field to be used in views.
-	 'parent_category' => array(
+	'parent_category' => array(
       'field_name' => 'parent_category',
       'label' => 'Parent Category',
-      'type' => 'computed',
+      'type' => 'taxonomy_term_reference',
       'settings' => array(
-        'code' => '$p = taxonomy_get_parents($entity->category[\'und\'][0][\'tid\']); if($p != null){ foreach($p AS $parent) {  $entity_field[0][\'value\'] = $parent->name; } }else{ $entity_field[0][\'value\'] =taxonomy_term_load($entity->category[\'und\'][0][\'tid\'])->name;}   ',
-        'display_format' => '$display_output = $entity_field_item[\'value\'];',
-        'store' => 1,
-        'database' => array(
-          'data_type' => 'varchar',
-          'data_length' => 32,
-          'data_size' => 'normal',
-          'data_precision' => 10,
-          'data_scale' => 2,
-          'data_not_NULL' => FALSE,
-          'data_default' => NULL,
-          'data_index' => FALSE,
-        ),
-      ),
-     ), 
-	 //child
-	  'child_category' => array(
+		'required' => false,
+        'allowed_values' => array(
+         array(
+           'vocabulary' => 'food_category', 
+           'parent' => 0,
+           ),
+         ),
+       ),
+     ),
+	 'child_category' => array(
       'field_name' => 'child_category',
       'label' => 'Child Category',
-      'type' => 'computed',
+	  'type' => 'taxonomy_term_reference',
       'settings' => array(
-        'code' => '$p = taxonomy_get_parents($entity->category[\'und\'][0][\'tid\']); if($p != null){ $entity_field[0][\'value\'] =taxonomy_term_load($entity->category[\'und\'][0][\'tid\'])->name;}  ',
-        'display_format' => '$display_output = $entity_field_item[\'value\'];',
-        'store' => 1,
-        'database' => array(
-          'data_type' => 'varchar',
-          'data_length' => 32,
-          'data_size' => 'normal',
-          'data_precision' => 10,
-          'data_scale' => 2,
-          'data_not_NULL' => FALSE,
-          'data_default' => NULL,
-          'data_index' => FALSE,
-        ),
-      ),
+		'required' => false,
+        'allowed_values' => array(
+         array(
+           'vocabulary' => 'food_category', 
+           'parent' => 0,
+           ),
+         ),
+       ),
      ),
 	 
   );
@@ -408,35 +394,52 @@ function _food_item_installed_instances() {
 			'type' =>  'options_select', 		
 	  ),
 	),  
-	
-	// New computed
   	'parent_category' => array(
 	  'field_name' => 'parent_category',
 	  'label' => 'Parent Category',
-	  'type' => 'computed',
-	  'required' => TRUE,
-	  'default_widget' => 'computed',
-      'default_formatter' => 'computed_field_plain',
-      // If we followed the core convention of separate fields for each data
-      // type we could make Entity API happy by just setting a property_type.
-      // Instead we have to use our own callback to determine the type then
-      // rerun theirs to setup the rest of the field properties.
-      'property_callbacks' => array('computed_field_entity_property_callback'),
+	  'type' => 'taxonomy_term_reference',
+	  'required' => FALSE,
+	  'widget' => array(   
+			'type' =>  'options_select', 		
+	  ),
 	),  
-	
 	'child_category' => array(
 	  'field_name' => 'child_category',
 	  'label' => 'Child Category',
-	  'type' => 'computed',
-	  'required' => TRUE,
-	  'default_widget' => 'computed',
-      'default_formatter' => 'computed_field_plain',
-      // If we followed the core convention of separate fields for each data
-      // type we could make Entity API happy by just setting a property_type.
-      // Instead we have to use our own callback to determine the type then
-      // rerun theirs to setup the rest of the field properties.
-      'property_callbacks' => array('computed_field_entity_property_callback'),
+	  'type' => 'taxonomy_term_reference',
+	  'required' => FALSE,
+	  'widget' => array(   
+			'type' =>  'options_select', 		
+	  ),
 	),  
+/* 	New computed
+  	// 'parent_category' => array(
+	  // 'field_name' => 'parent_category',
+	  // 'label' => 'Parent Category',
+	  // 'type' => 'computed',
+	  // 'required' => TRUE,
+	  // 'default_widget' => 'computed',
+      // 'default_formatter' => 'computed_field_plain',
+      If we followed the core convention of separate fields for each data
+      type we could make Entity API happy by just setting a property_type.
+      Instead we have to use our own callback to determine the type then
+      rerun theirs to setup the rest of the field properties.
+      // 'property_callbacks' => array('computed_field_entity_property_callback'),
+	// ),  
+	
+	// 'child_category' => array(
+	  // 'field_name' => 'child_category',
+	  // 'label' => 'Child Category',
+	  // 'type' => 'computed',
+	  // 'required' => TRUE,
+	  // 'default_widget' => 'computed',
+      // 'default_formatter' => 'computed_field_plain',
+      If we followed the core convention of separate fields for each data
+      type we could make Entity API happy by just setting a property_type.
+      Instead we have to use our own callback to determine the type then
+      rerun theirs to setup the rest of the field properties.
+      // 'property_callbacks' => array('computed_field_entity_property_callback'),
+	// ),   */
 		
   );
 }

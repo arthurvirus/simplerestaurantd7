@@ -5,9 +5,11 @@ core = 7.x
 dependencies[] = views
 dependencies[] = weight
 dependencies[] = taxonomy
-dependencies[] = computed_field
 dependencies[] = entityreference
 dependencies[] = multiple_selects
+dependencies[] = locale
+dependencies[] = wysiwyg
+
 
 files[] = simple_restaurant_menu.module
 files[] = simple_restaurant_menu.install

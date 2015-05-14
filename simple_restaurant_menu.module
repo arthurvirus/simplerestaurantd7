@@ -10,19 +10,20 @@
 	
 	$p = taxonomy_get_parents($node->category[$langcode][0]['tid']);
 	$parent = reset($p);
-	dsm($parent);
+
 	if($p != null){ 
 		//$entity_field[0]['value'] =taxonomy_term_load($entity->category[$langcode][0]['tid'])->name;
 		
 		//Alors on est l'enfant
-		$node->field_child_category['und'][0]['tid'] = $node->category[$langcode][0]['tid'];
+		$node->child_category['und'][0]['tid'] = $node->category[$langcode][0]['tid'];
 		//Et il faut éditer le parent
 		
-		$node->field_parent_category['und'][0]['tid'] = $parent->tid;
+		$node->parent_category['und'][0]['tid'] = $parent->tid;
 	}else{
 		//Si non, alors on est le parent, et il n'y a pas d'enfant
-		$node->field_parent_category['und'][0]['tid'] = $node->category[$langcode][0]['tid'];
-	}  
+		$node->parent_category['und'][0]['tid'] = $node->category[$langcode][0]['tid'];
+		$node->child_category['und'] = [] ;
+		}  
  
     }
   
@@ -263,6 +264,7 @@ function simple_restaurant_menu_form_alter(&$form, $form_state, $form_id) {
 	//Modification for  owner and not admin
   //if(1 == 1){
   if (user_access('Administer Module simple_restaurant_menu') && ! user_access('Administer content types') ){ 
+  dsm('w');
     switch($form_id){
 	  case  'food_item_node_form' :
 		$form['path']['#access'] = FALSE;
