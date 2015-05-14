@@ -1,5 +1,24 @@
 <?php
 //TODO organised
+
+function simple_restaurant_menu_views_pre_render(&$view){
+	//Desperate solution for view => Delete nid duplicates
+	//dsm($view->result);
+	
+	foreach ($view->result as $key => $value) {
+
+		foreach ($view->result as $key2 => $value2) {
+			if ($value->nid == $value2->nid && $key != $key2){				
+				unset($view->result[$key]);
+				//exit;
+			}
+		}
+		
+	}
+	
+}
+
+
 //change parent category
  function simple_restaurant_menu_node_presave($node){
 
@@ -100,7 +119,7 @@ $items = array();
 	'type'             => MENU_NORMAL_ITEM,
 	'menu_name'        => 'Management',
   );
-  
+  /*
   $items['admin/simple_restaurant/food_admin'] = array(
     'title' => t('Food Admin'),
     'page callback' => 'food_admin_page',
@@ -109,7 +128,7 @@ $items = array();
 	'type'             => MENU_NORMAL_ITEM,
 	'menu_name'        => 'Management',
   );
-  
+  */
   $items['admin/simple_restaurant/category_admin'] = array(
     'title' => t('Category Admin'),
     'page callback' => 'category_admin_page',
@@ -118,7 +137,7 @@ $items = array();
 	'type'             => MENU_NORMAL_ITEM,
 	'menu_name'        => 'Management',
   );
-  
+  /*
    $items['admin/simple_restaurant/combination_add'] = array(
      'title' => t('Combination add'),
      'page callback' => 'drupal_get_form',
@@ -128,7 +147,8 @@ $items = array();
 	 'type'             => MENU_NORMAL_ITEM,
 	 'menu_name'        => 'Management',
    );
-   
+   */
+   /*
     $items['admin/simple_restaurant/combinations'] = array(
      'title' => t('Combinations'),
      'page callback' => 'combinations_admin_page',
@@ -137,7 +157,7 @@ $items = array();
 	 'type'             => MENU_NORMAL_ITEM,
 	 'menu_name'        => 'Management',
    );
-
+*/
   $items['menu'] = array(
     'title' => t('Menu'),
     'page callback' => 'menu_page',
