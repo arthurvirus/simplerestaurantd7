@@ -102,6 +102,12 @@ $handler->display->display_options['style_options']['info'] = array(
     'empty_column' => 0,
   ),
 );
+/* Header: Global: Unfiltered text */
+$handler->display->display_options['header']['area_text_custom']['id'] = 'area_text_custom';
+$handler->display->display_options['header']['area_text_custom']['table'] = 'views';
+$handler->display->display_options['header']['area_text_custom']['field'] = 'area_text_custom';
+$handler->display->display_options['header']['area_text_custom']['label'] = 'Add food item';
+$handler->display->display_options['header']['area_text_custom']['content'] = '<ul class=\'action-links\'><li><a href="../../node/add/food-item">Add Food Item</a></li></ul>';
 /* Relationship: Content: Taxonomy terms on node */
 $handler->display->display_options['relationships']['term_node_tid']['id'] = 'term_node_tid';
 $handler->display->display_options['relationships']['term_node_tid']['table'] = 'node';
@@ -157,14 +163,11 @@ $handler->display->display_options['fields']['delete_node']['field'] = 'delete_n
 $handler->display->display_options['fields']['edit_node']['id'] = 'edit_node';
 $handler->display->display_options['fields']['edit_node']['table'] = 'views_entity_node';
 $handler->display->display_options['fields']['edit_node']['field'] = 'edit_node';
-/* Sort criterion: Content: Category (category) */
-$handler->display->display_options['sorts']['category_tid']['id'] = 'category_tid';
-$handler->display->display_options['sorts']['category_tid']['table'] = 'field_data_category';
-$handler->display->display_options['sorts']['category_tid']['field'] = 'category_tid';
-/* Sort criterion: Weight: Weight */
-$handler->display->display_options['sorts']['weight_1']['id'] = 'weight_1';
-$handler->display->display_options['sorts']['weight_1']['table'] = 'weight_weights';
-$handler->display->display_options['sorts']['weight_1']['field'] = 'weight';
+/* Sort criterion: Taxonomy term: Weight */
+$handler->display->display_options['sorts']['weight']['id'] = 'weight';
+$handler->display->display_options['sorts']['weight']['table'] = 'taxonomy_term_data';
+$handler->display->display_options['sorts']['weight']['field'] = 'weight';
+$handler->display->display_options['sorts']['weight']['relationship'] = 'term_node_tid';
 /* Filter criterion: Content: Published */
 $handler->display->display_options['filters']['status']['id'] = 'status';
 $handler->display->display_options['filters']['status']['table'] = 'node';
@@ -179,11 +182,53 @@ $handler->display->display_options['filters']['type']['field'] = 'type';
 $handler->display->display_options['filters']['type']['value'] = array(
   'food_item' => 'food_item',
 );
+/* Filter criterion: Content: Language */
+$handler->display->display_options['filters']['language']['id'] = 'language';
+$handler->display->display_options['filters']['language']['table'] = 'node';
+$handler->display->display_options['filters']['language']['field'] = 'language';
+$handler->display->display_options['filters']['language']['value'] = array(
+  '***DEFAULT_LANGUAGE***' => '***DEFAULT_LANGUAGE***',
+);
 
 /* Display: Block */
 $handler = $view->new_display('block', 'Block', 'block');
 $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
 $handler->display->display_options['block_description'] = 'Food Admin';
+
+/* Display: Page */
+$handler = $view->new_display('page', 'Page', 'page_1');
+$handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
+$handler->display->display_options['path'] = 'admin/simple_restaurant/food_admin';
+$handler->display->display_options['menu']['type'] = 'normal';
+$handler->display->display_options['menu']['title'] = 'Food admin';
+$handler->display->display_options['menu']['description'] = 'Food admin';
+$handler->display->display_options['menu']['weight'] = '0';
+$handler->display->display_options['menu']['name'] = 'management';
+$handler->display->display_options['menu']['context'] = 0;
+$translatables['food_admin'] = array(
+  t('Master'),
+  t('Food Admin'),
+  t('plus'),
+  t('Confirmez'),
+  t('Annuler'),
+  t('Trier par'),
+  t('Asc'),
+  t('Desc'),
+  t('Add food item'),
+  t('<ul class=\'action-links\'><li><a href="../../node/add/food-item">Add Food Item</a></li></ul>'),
+  t('food_item_category'),
+  t('Title'),
+  t('Weight'),
+  t('Description'),
+  t('Image'),
+  t('Price'),
+  t('Delete link'),
+  t('Edit link'),
+  t('Block'),
+  t('more'),
+  t('Page'),
+);
+
 
 return $view;
 
@@ -193,7 +238,6 @@ function view_food_menu(){
 //----------------------------------------------------
 //                    CARTE 
 //----------------------------------------------------
-
 $view = new view();
 $view->name = 'food_menu';
 $view->description = 'List of food item';
@@ -207,6 +251,7 @@ $view->disabled = FALSE; /* Edit this to true to make a default view disabled in
 /* Display: Master */
 $handler = $view->new_display('default', 'Master', 'default');
 $handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['group_by'] = TRUE;
 $handler->display->display_options['access']['type'] = 'perm';
 $handler->display->display_options['cache']['type'] = 'none';
 $handler->display->display_options['query']['type'] = 'views_query';
@@ -273,14 +318,6 @@ $handler->display->display_options['fields']['desc']['label'] = '';
 $handler->display->display_options['fields']['desc']['element_label_colon'] = FALSE;
 $handler->display->display_options['fields']['desc']['element_wrapper_class'] = 'view-food-menu-description';
 $handler->display->display_options['fields']['desc']['element_default_classes'] = FALSE;
-/* Field: Content: Child Category */
-$handler->display->display_options['fields']['child_category']['id'] = 'child_category';
-$handler->display->display_options['fields']['child_category']['table'] = 'field_data_child_category';
-$handler->display->display_options['fields']['child_category']['field'] = 'child_category';
-$handler->display->display_options['fields']['child_category']['label'] = '';
-$handler->display->display_options['fields']['child_category']['exclude'] = TRUE;
-$handler->display->display_options['fields']['child_category']['element_label_colon'] = FALSE;
-$handler->display->display_options['fields']['child_category']['hide_empty'] = TRUE;
 /* Field: Content: Parent Category */
 $handler->display->display_options['fields']['parent_category']['id'] = 'parent_category';
 $handler->display->display_options['fields']['parent_category']['table'] = 'field_data_parent_category';
@@ -288,15 +325,16 @@ $handler->display->display_options['fields']['parent_category']['field'] = 'pare
 $handler->display->display_options['fields']['parent_category']['label'] = '';
 $handler->display->display_options['fields']['parent_category']['exclude'] = TRUE;
 $handler->display->display_options['fields']['parent_category']['element_label_colon'] = FALSE;
+/* Field: Content: Nid */
+$handler->display->display_options['fields']['nid']['id'] = 'nid';
+$handler->display->display_options['fields']['nid']['table'] = 'node';
+$handler->display->display_options['fields']['nid']['field'] = 'nid';
+$handler->display->display_options['fields']['nid']['exclude'] = TRUE;
 /* Sort criterion: Taxonomy term: Weight */
 $handler->display->display_options['sorts']['weight']['id'] = 'weight';
 $handler->display->display_options['sorts']['weight']['table'] = 'taxonomy_term_data';
 $handler->display->display_options['sorts']['weight']['field'] = 'weight';
 $handler->display->display_options['sorts']['weight']['relationship'] = 'term_node_tid';
-/* Sort criterion: Weight: Weight */
-$handler->display->display_options['sorts']['weight_1']['id'] = 'weight_1';
-$handler->display->display_options['sorts']['weight_1']['table'] = 'weight_weights';
-$handler->display->display_options['sorts']['weight_1']['field'] = 'weight';
 /* Filter criterion: Content: Type */
 $handler->display->display_options['filters']['type']['id'] = 'type';
 $handler->display->display_options['filters']['type']['table'] = 'node';
@@ -308,7 +346,18 @@ $handler->display->display_options['filters']['type']['value'] = array(
 /* Display: Block */
 $handler = $view->new_display('block', 'Block', 'block');
 $handler->display->display_options['defaults']['hide_admin_links'] = FALSE;
-
+$translatables['food_menu'] = array(
+  t('Master'),
+  t('more'),
+  t('Apply'),
+  t('Reset'),
+  t('Sort by'),
+  t('Asc'),
+  t('Desc'),
+  t('food item category'),
+  t('Nid'),
+  t('Block'),
+);
 
 
 return $view;
