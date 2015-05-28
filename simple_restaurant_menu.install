@@ -479,6 +479,7 @@ function _simple_restaurant_menu_new_permissions(){
 	'edit any food_item content' => TRUE, // Grant permission
 	'delete own food_item content' => TRUE, // Grant permission
 	'delete any food_item content' => TRUE, // Grant permissionon
+	'administer module simple_restaurant_menu'=> TRUE, // Grant permissiono TODO check if it works
 	//TODO add combination_sub
 	
 	

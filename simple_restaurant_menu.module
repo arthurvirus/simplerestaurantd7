@@ -283,10 +283,12 @@ function simple_restaurant_menu_form_alter(&$form, $form_state, $form_id) {
 	
 	//Modification for  owner and not admin
   //if(1 == 1){
+
   if (user_access('Administer Module simple_restaurant_menu') && ! user_access('Administer content types') ){ 
-  dsm('w');
     switch($form_id){
 	  case  'food_item_node_form' :
+	  
+	  dsm($form);
 		$form['path']['#access'] = FALSE;
 		$form['menu']['#access'] = FALSE;
 		$form['author']['#access'] = FALSE;	
@@ -310,19 +312,26 @@ function simple_restaurant_menu_form_alter(&$form, $form_state, $form_id) {
 		//TODO LANG loop on languages !!!!
 		$lang = 'und';
 
+		$orderedtab = array_values($form['category'][$lang]['#options']);
+		dsm($orderedtab);
 		//If it's more then two level, delete
-		for ($row = 1; $row < count($form['category'][$lang]['#options']); $row ++) {
-			if(mb_substr_count($form['category'][$lang]['#options'][$row], '-') > 1 ){
+		for ($row = 1; $row < count($orderedtab); $row ++) {
+		
+			$line = $orderedtab[$row];
+			if(mb_substr_count($line, '-') > 1 ){
 				unset($form['category'][$lang]['#options'][$row]);
 			}
 		}
 	    //for each option, if this option has child, delete it.  (ignore level > 2 child)
-		for ($row = 1; $row < count($form['category'][$lang]['#options']); $row ++) {			  
-		  $tterm = taxonomy_get_term_by_name(str_replace ('-','',$form['category'][$lang]['#options'][$row]));		  
-		  if(count(taxonomy_get_children($tterm[$row]->tid) ) > 0 && mb_substr_count($form['category'][$lang]['#options'][$row], '-') == 0  ){		  	
+		for ($row = 1; $row < count($orderedtab); $row ++) {			  
+		  $tterm = taxonomy_get_term_by_name(str_replace ('-','',$or	deredtab[$row]));		  
+		  if(count(taxonomy_get_children($tterm[$row]->tid) ) > 0 && mb_substr_count($orderedtab[$row], '-') == 0  ){		  	
 		   unset($form['category'][$lang]['#options'][$row]);
 		  }
 		}
+		
+		$form['parent_category']['#access'] = FALSE;	
+		$form['child_category']['#access'] = FALSE;	
 
 	  break;
 		
