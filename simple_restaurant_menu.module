@@ -211,9 +211,10 @@ function category_admin_page(){
 }
 
  /**
- * Edit Food Admin page
+ * Edit Food Admin page //TODO DELETTTEEEE OBoslete
  */
 function food_admin_page(){
+
 
   $items = array();
   
@@ -237,6 +238,7 @@ $items[0] = $view_content;
 */
 //OR TODO modify block page view
 
+
   return $items;
 }
 
@@ -258,7 +260,7 @@ function combinations_admin_page(){
  /**
  * Edit Menu page
  */
-function menu_page(){
+function menu_page(){ 
 
   $items = array();
   drupal_add_css(drupal_get_path('module', 'simple_restaurant_menu') . '/simple_restaurant-views.css');
@@ -283,12 +285,12 @@ function simple_restaurant_menu_form_alter(&$form, $form_state, $form_id) {
 	
 	//Modification for  owner and not admin
   //if(1 == 1){
-
+dsm($form);
   if (user_access('Administer Module simple_restaurant_menu') && ! user_access('Administer content types') ){ 
     switch($form_id){
 	  case  'food_item_node_form' :
 	  
-	  dsm($form);
+	  
 		$form['path']['#access'] = FALSE;
 		$form['menu']['#access'] = FALSE;
 		$form['author']['#access'] = FALSE;	
@@ -310,24 +312,29 @@ function simple_restaurant_menu_form_alter(&$form, $form_state, $form_id) {
 		
 		// limit taxonomy choices
 		//TODO LANG loop on languages !!!!
+		// TODO rewriteeeeeeeeeeeeeeeeeeeeeeeeeeeee!
 		$lang = 'und';
 
-		$orderedtab = array_values($form['category'][$lang]['#options']);
-		dsm($orderedtab);
-		//If it's more then two level, delete
-		for ($row = 1; $row < count($orderedtab); $row ++) {
-		
-			$line = $orderedtab[$row];
-			if(mb_substr_count($line, '-') > 1 ){
-				unset($form['category'][$lang]['#options'][$row]);
+		unset($form['category'][$lang]['#options']['_none']);
+		$categoryTab = $form['category'][$lang]['#options'];
+
+		$i = 0;
+		$max = count($categoryTab);		 
+		while ($i < $max) {
+			$line = current($categoryTab);
+			$key = key($categoryTab);
+			
+			//If it's more then two level, delete
+			if(mb_substr_count($line, '-') > 1 ){				
+				unset($form['category'][$lang]['#options'][$key]);
 			}
-		}
-	    //for each option, if this option has child, delete it.  (ignore level > 2 child)
-		for ($row = 1; $row < count($orderedtab); $row ++) {			  
-		  $tterm = taxonomy_get_term_by_name(str_replace ('-','',$or	deredtab[$row]));		  
-		  if(count(taxonomy_get_children($tterm[$row]->tid) ) > 0 && mb_substr_count($orderedtab[$row], '-') == 0  ){		  	
-		   unset($form['category'][$lang]['#options'][$row]);
-		  }
+			//for each option, if this option has child, delete it.  (ignore level > 2 child)	
+			$tterm = taxonomy_get_term_by_name(str_replace ('-','',$categoryTab[$key]));		  
+		    if(count(taxonomy_get_children($tterm[$key]->tid) ) > 0 && mb_substr_count($categoryTab[$key], '-') == 0  ){		  	
+				unset($form['category'][$lang]['#options'][$key]);
+		    }			
+			next($categoryTab);
+			$i ++;		
 		}
 		
 		$form['parent_category']['#access'] = FALSE;	

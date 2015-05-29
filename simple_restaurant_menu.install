@@ -50,6 +50,7 @@ function simple_restaurant_menu_install() {
 	  'machine_name' => 'food_category',
     ));  
 
+	/*
     // Get the vocabulary ID.
     $vid = db_query("SELECT vid FROM {taxonomy_vocabulary} WHERE machine_name = 'food_category'")->fetchField();
 
@@ -66,6 +67,7 @@ function simple_restaurant_menu_install() {
 	  'vid' => $vid,
 	  ));
     }	
+	*/
   }
   //---------------------------------------------
   // Insert combination_sub content type and its fields

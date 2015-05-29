@@ -168,6 +168,10 @@ $handler->display->display_options['sorts']['weight']['id'] = 'weight';
 $handler->display->display_options['sorts']['weight']['table'] = 'taxonomy_term_data';
 $handler->display->display_options['sorts']['weight']['field'] = 'weight';
 $handler->display->display_options['sorts']['weight']['relationship'] = 'term_node_tid';
+/* Sort criterion: Weight: Weight */
+$handler->display->display_options['sorts']['weight_1']['id'] = 'weight_1';
+$handler->display->display_options['sorts']['weight_1']['table'] = 'weight_weights';
+$handler->display->display_options['sorts']['weight_1']['field'] = 'weight';
 /* Filter criterion: Content: Published */
 $handler->display->display_options['filters']['status']['id'] = 'status';
 $handler->display->display_options['filters']['status']['table'] = 'node';
@@ -228,6 +232,7 @@ $translatables['food_admin'] = array(
   t('more'),
   t('Page'),
 );
+
 
 
 return $view;
