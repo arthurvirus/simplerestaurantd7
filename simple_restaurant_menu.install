@@ -137,6 +137,10 @@ function simple_restaurant_menu_install() {
   variable_set('menu_options_food_item', array (    ) );//menu empty
   variable_set('node_submitted_food_item', '0');//display author = false 
 
+  //Weigth
+   variable_set('weight_enabled_food_item', "1");//enabled
+  variable_set('weight_range_food_item', "100");//+-100
+  variable_set('sync_translations_food_item', "1");//translate
   
     // Create all the fields we are adding to our content type.
   foreach (_food_item_installed_fields() as $field) {
